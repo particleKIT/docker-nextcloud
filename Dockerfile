@@ -44,8 +44,8 @@ WORKDIR "$NC_WWW"
    
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories &&\
     apk update && apk upgrade &&\
-    apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl gettext \
-            php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
+    apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
+            ttext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
             php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache \ 
@@ -65,6 +65,10 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     rm -f /usr/share/webapps/nextcloud/resources/config/ca-bundle.crt &&\
     cp /etc/ssl/certs/ca-certificates.crt /usr/share/webapps/nextcloud/resources/config/ca-bundle.crt &&\  
     chown -R apache:apache $NC_WWW &&\
+    echo "LoadModule proxy_module modules/mod_proxy.so" > /etc/apache2/conf.d/proxy.conf &&\
+    echo "LoadModule proxy_http_module modules/mod_proxy_http.so" >> /etc/apache2/conf.d/proxy.conf &&\
+    echo "LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so" >> /etc/apache2/conf.d/proxy.conf &&\
+    sed -i 's/^;basePath.*/basePath=\/webrtc/g' /etc/spreed-webrtc/spreed-webrtc-server.conf &&\
     sed -i '/proxy_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/proxy_connect_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/proxy_ftp_module/s/^#//g' /etc/apache2/httpd.conf &&\
@@ -95,6 +99,7 @@ ADD tpl /tpl
 VOLUME "/var/lib/nextcloud"
 VOLUME "/var/lib/mysql"
 VOLUME "/tpl"
+VOLUME "/etc/spreed-webrtc"
 
 EXPOSE 80 443
 
