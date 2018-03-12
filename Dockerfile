@@ -34,6 +34,7 @@ ENV DB_TYPE=mysql \
     NC_MAIL_SMTPNAME=admin@localhost \
     NC_MAIL_SMTPSECURE=ssl \
     NC_MAIL_SMTPPASSWORD=changemepls \
+    NC_SKELETON = "/var/www/localhost/htdocs/core/skeleton" \
     NC_SSL_CERTIFICATE="/etc/ssl/apache2/server.pem" \
     NC_SSL_CHAIN="/etc/ssl/apache2/server.pem" \
     NC_SSL_KEY="/etc/ssl/apache2/server.key"

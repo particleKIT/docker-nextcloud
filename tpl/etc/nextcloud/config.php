@@ -18,6 +18,7 @@ $CONFIG = array (
     'default_language' => '{NC_LANGUAGE}',
     'defaultapp' => '{NC_DEFAULTAPP}',
     'overwritehost' => '{NC_OVERWRITEHOST}',
+    'skeletondirectory' => {NC_SKELETON},
     'loglevel' => {NC_LOGLEVEL},
     'mail_from_address' => '{NC_MAIL_FROM_ADDRESS}',
     'mail_smtpmode' => '{NC_MAIL_SMTPMODE}',
