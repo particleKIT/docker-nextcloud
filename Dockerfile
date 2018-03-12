@@ -45,7 +45,7 @@ WORKDIR "$NC_WWW"
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories &&\
     apk update && apk upgrade &&\
     apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
-            ttext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
+            gettext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
             php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache \ 
