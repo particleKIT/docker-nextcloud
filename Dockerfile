@@ -34,7 +34,7 @@ ENV DB_TYPE=mysql \
     NC_MAIL_SMTPNAME=admin@localhost \
     NC_MAIL_SMTPSECURE=ssl \
     NC_MAIL_SMTPPASSWORD=changemepls \
-    NC_SKELETON = "/var/www/localhost/htdocs/core/skeleton" \
+    NC_SKELETON="/var/www/localhost/htdocs/core/skeleton" \
     NC_SSL_CERTIFICATE="/etc/ssl/apache2/server.pem" \
     NC_SSL_CHAIN="/etc/ssl/apache2/server.pem" \
     NC_SSL_KEY="/etc/ssl/apache2/server.key"
@@ -56,6 +56,8 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
             spreed-webrtc@testing &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
+    mv /etc/apache2/conf.d/ssl.conf /etc/apache2/conf.d/ssl.conf.bak &&\
+    mv /etc/apache2/conf.d/userdir.conf /etc/apache2/conf.d/userdir.conf.bak &&\
     rm -rf $NC_WWW &&\
     ln -s /usr/share/webapps/nextcloud $NC_WWW &&\
     rm -f $NC_WWW/core/doc &&\ 
