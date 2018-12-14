@@ -58,6 +58,7 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
             spreed-webrtc@testing &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
+    chmod o+rwx,g+rwx,u+rwx /var/tmp/ &&\
     mv /etc/apache2/conf.d/ssl.conf /etc/apache2/conf.d/ssl.conf.bak &&\
     mv /etc/apache2/conf.d/userdir.conf /etc/apache2/conf.d/userdir.conf.bak &&\
     rm -rf $NC_WWW &&\
