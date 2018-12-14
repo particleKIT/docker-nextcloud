@@ -49,7 +49,7 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
             php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif \ 
-            nextcloud-mysql php7-ldap nextcloud-default-apps nextcloud-user_ldap nextcloud-files_videoplayer \
+            nextcloud-mysql php7-ldap nextcloud-user_ldap nextcloud-files_videoplayer \
             nextcloud-gallery nextcloud-files_pdfviewer nextcloud-files_external nextcloud-password_policy \
             nextcloud-activity nextcloud-files_texteditor nextcloud-doc \
             nextcloud-notifications nextcloud-logreader nextcloud-encryption \
