@@ -49,10 +49,12 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
             php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif \ 
-            nextcloud-mysql php7-ldap nextcloud-user_ldap nextcloud-files_videoplayer \
-            nextcloud-gallery nextcloud-files_pdfviewer nextcloud-files_external nextcloud-password_policy \
-            nextcloud-activity nextcloud-files_texteditor nextcloud-doc \
-            nextcloud-notifications nextcloud-logreader nextcloud-encryption \
+            nextcloud-mysql php7-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
+            nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-files_texteditor \
+            nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
+            nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications \
+            nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
+            nextcloud-theming nextcloud-user_external nextcloud-user_ldap \
             spreed-webrtc@testing &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
@@ -88,6 +90,8 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php7/conf.d/00_opcache.ini &&\
     echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php7/conf.d/00_opcache.ini &&\
     echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php7/conf.d/00_opcache.ini &&\
+    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=512M/' /etc/php7/php.ini &&\
+    sed -i 's/^memory_limit.*$/memory_limit=1024M/' /etc/php7/php.ini &&\
     ln -s /var/www/localhost/htdocs/occ /usr/local/bin/occ &&\
     chmod +x /usr/share/webapps/nextcloud/occ &&\
     rm -f /etc/nextcloud/config.php
