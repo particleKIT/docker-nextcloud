@@ -42,8 +42,7 @@ ENV DB_TYPE=mysql \
 
 WORKDIR "$NC_WWW"
    
-RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories &&\
-    apk update && apk upgrade &&\
+RUN apk update && apk upgrade &&\
     apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
             gettext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
@@ -54,8 +53,7 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
             nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
             nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications \
             nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
-            nextcloud-theming nextcloud-user_external nextcloud-user_ldap \
-            spreed-webrtc@testing &&\
+            nextcloud-theming nextcloud-user_ldap &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
     chmod o+rwx,g+rwx,u+rwx /var/tmp/ &&\
@@ -71,7 +69,6 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     echo "LoadModule proxy_module modules/mod_proxy.so" > /etc/apache2/conf.d/proxy.conf &&\
     echo "LoadModule proxy_http_module modules/mod_proxy_http.so" >> /etc/apache2/conf.d/proxy.conf &&\
     echo "LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so" >> /etc/apache2/conf.d/proxy.conf &&\
-    sed -i 's/^;basePath.*/basePath=\/webrtc/g' /etc/spreed-webrtc/spreed-webrtc-server.conf &&\
     sed -i '/proxy_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/proxy_connect_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/proxy_ftp_module/s/^#//g' /etc/apache2/httpd.conf &&\
@@ -91,8 +88,8 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php7/conf.d/00_opcache.ini &&\
     echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php7/conf.d/00_opcache.ini &&\
     echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php7/conf.d/00_opcache.ini &&\
-    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=512M/' /etc/php7/php.ini &&\
-    sed -i 's/^memory_limit.*$/memory_limit=1024M/' /etc/php7/php.ini &&\
+    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=1512M/' /etc/php7/php.ini &&\
+    sed -i 's/^memory_limit.*$/memory_limit=2512M/' /etc/php7/php.ini &&\
     ln -s /var/www/localhost/htdocs/occ /usr/local/bin/occ &&\
     chmod +x /usr/share/webapps/nextcloud/occ &&\
     rm -f /etc/nextcloud/config.php
@@ -104,7 +101,6 @@ ADD tpl /tpl
 VOLUME "/var/lib/nextcloud"
 VOLUME "/var/lib/mysql"
 VOLUME "/tpl"
-VOLUME "/etc/spreed-webrtc"
 
 EXPOSE 80 443
 

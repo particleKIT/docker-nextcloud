@@ -86,9 +86,6 @@ if [ ! -e /srv/installed ]; then
     touch /srv/installed
 fi
 
-echo '### Starting Spreed.me WebRTC server'
-spreed-webrtc-server -c /etc/spreed-webrtc/spreed-webrtc-server.conf >> /var/log/apache2/webrtc.log 2>&1  &
-
 echo '### Gratulations! Point your browser to your new nextcloud instance. ###'
 
 exec $@
