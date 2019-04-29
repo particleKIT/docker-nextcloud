@@ -32,11 +32,11 @@ if [ ! -f "$DB_DATA_PATH/ibdata1" ]; then
     FLUSH PRIVILEGES;" | mysql -u root --password=$DB_ROOT_PASS
 else
     echo '### existing postgres database found ###'
-    sed -i "/\[mysqld\]/a max_allowed_packet = $MAX_ALLOWED_PACKET" my.cnf
-    sed -i "/\[mysqld\]/a key_buffer_size = 128M" my.cnf
-    sed -i "/\[mysqld\]/a transaction_isolation = READ-COMMITTED" my.cnf
-    sed -i "/\[mysqld\]/a binlog_format = ROW" my.cnf
-    echo -e "[mysql-dump]\nmax_allowed_packet = $MAX_ALLOWED_PACKET\nquick\nquote-names" >> my.cnf
+    sed -i "/\[mysqld\]/a max_allowed_packet = $MAX_ALLOWED_PACKET" /etc/my.cnf
+    sed -i "/\[mysqld\]/a key_buffer_size = 128M" /etc/my.cnf
+    sed -i "/\[mysqld\]/a transaction_isolation = READ-COMMITTED" /etc/my.cnf
+    sed -i "/\[mysqld\]/a binlog_format = ROW" /etc/my.cnf
+    echo -e "[mysql-dump]\nmax_allowed_packet = $MAX_ALLOWED_PACKET\nquick\nquote-names" >> /etc/my.cnf
 
     echo '### starting database server ###'
     mysqld_safe --datadir="$DB_DATA_PATH" --timezone="$NC_TIME" &
