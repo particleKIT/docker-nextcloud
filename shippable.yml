@@ -2,7 +2,7 @@ build:
   pre_ci:
     - docker build -t test/nextcloud:latest .
     - docker rm -f nc || true
-    - docker run -d --name=nc test/nextcloud:latest
+    - docker run -d --name=nc -p 80:80 -p 443:443 test/nextcloud:latest
   ci:
     - >
       while ! docker logs --tail=5 nc |& grep 'Gratulations'; do
