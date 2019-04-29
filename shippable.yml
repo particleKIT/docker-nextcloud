@@ -10,6 +10,7 @@ build:
       done;
     - docker logs nc
     - docker exec nc wget --no-check-certificate https://localhost || true
+    - docker exec nc wget --no-check-certificate https://localhost || true
     - sleep 3
     - docker exec --user apache nc ./occ --no-ansi status
     - docker exec nc cat /var/log/apache2/error.log
