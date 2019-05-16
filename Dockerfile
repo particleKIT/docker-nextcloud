@@ -53,7 +53,7 @@ RUN apk update && apk upgrade &&\
             nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
             nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications \
             nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
-            nextcloud-support nextcloud-cloud_federation_api nextcloud-accessibility nextcloud-theming nextcloud-user_ldap &&\
+            nextcloud-support nextcloud-cloud_federation_api nextcloud-accessibility nextcloud-theming nextcloud-user_ldap coturn &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
     chmod o+rwx,g+rwx,u+rwx /var/tmp/ &&\

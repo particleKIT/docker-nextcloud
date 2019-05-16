@@ -43,6 +43,11 @@ else
     sleep 2
 fi 
 
+if [ -e /etc/coturn/turnserver.conf ]; then
+    echo '### starting turnserver ###'
+    turnserver -c /etc/coturn/turnserver.conf -o
+fi
+
 if [ ! -e /srv/installed ]; then
     echo "### set timezone to $NC_TIME ###"
     ln -sf /usr/share/zoneinfo/$NC_TIME /etc/localtime
