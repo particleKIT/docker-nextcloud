@@ -45,7 +45,7 @@ fi
 
 if [ -e /etc/coturn/turnserver.conf ]; then
     echo '### starting turnserver ###'
-    turnserver -c /etc/coturn/turnserver.conf -o
+    turnserver -c /etc/coturn/turnserver.conf -l /var/log/turn.log -o
 fi
 
 if [ ! -e /srv/installed ]; then
