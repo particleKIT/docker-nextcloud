@@ -15,6 +15,7 @@ ENV DB_TYPE=mysql \
     NC_EMAIL="admin@localhost" \
     NC_ADMINPASS=changemepls \
     NC_DATADIR=/var/lib/nextcloud/data \
+    NC_FIXDATADIR="no" \
     NC_WWW=/var/www/localhost/htdocs \
     NC_DOMAIN=localhost \
     NC_TIME="Europe/Berlin" \
