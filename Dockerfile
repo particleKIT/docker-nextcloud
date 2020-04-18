@@ -50,9 +50,9 @@ RUN apk update && apk upgrade &&\
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
             php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif \ 
             nextcloud-mysql php7-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
-            nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing \
+            nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-privacy nextcloud-recommendations \
             nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
-            nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications \
+            nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications nextcloud-default-apps \
             nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
             nextcloud-support nextcloud-cloud_federation_api nextcloud-accessibility nextcloud-theming nextcloud-user_ldap coturn &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
