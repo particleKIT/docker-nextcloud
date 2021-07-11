@@ -48,7 +48,7 @@ RUN apk update && apk upgrade &&\
             gettext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
             php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
             php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
-            php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif \ 
+            php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif php7-gmp php7-bcmath \ 
             nextcloud-mysql php7-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
             nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-privacy nextcloud-recommendations \
             nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
