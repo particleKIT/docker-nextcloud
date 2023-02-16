@@ -49,12 +49,12 @@ RUN apk update && apk upgrade &&\
             php8-json php8-pdo_mysql php8-intl php8-apcu php8-openssl php8-fileinfo \
             php8-curl php8-zip php8-mbstring php8-dom php8-xmlreader php8-ctype php8-zlib apcupsd \
             php8-iconv php8-simplexml php8-xmlwriter php8-pcntl php8-ldap php8-opcache libexif php8-exif php8-gmp php8-bcmath \ 
-            nextcloud23-mysql php8-ldap nextcloud23-activity nextcloud23-admin_audit nextcloud23-comments nextcloud23-doc nextcloud23-encryption \
-            nextcloud23-federation nextcloud23-files_external nextcloud23-files_pdfviewer nextcloud23-files_sharing nextcloud23-privacy nextcloud23-recommendations \
-            nextcloud23-files_trashbin nextcloud23-files_versions nextcloud23-files_videoplayer nextcloud23-firstrunwizard nextcloud23-gallery \
-            nextcloud23-initscript nextcloud23-logreader nextcloud23-mysql nextcloud23-notifications nextcloud23-default-apps \
-            nextcloud23-password_policy nextcloud23-pgsql nextcloud23-serverinfo nextcloud23-sharebymail nextcloud23-survey_client nextcloud23-systemtags\
-            nextcloud23-support nextcloud23-cloud_federation_api nextcloud23-accessibility nextcloud23-theming nextcloud23-user_ldap coturn &&\
+            nextcloud-mysql php8-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
+            nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-privacy nextcloud-recommendations \
+            nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
+            nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-notifications nextcloud-default-apps \
+            nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
+            nextcloud-support nextcloud-cloud_federation_api nextcloud-accessibility nextcloud-theming nextcloud-user_ldap coturn &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
     chmod o+rwx,g+rwx,u+rwx /var/tmp/ &&\
