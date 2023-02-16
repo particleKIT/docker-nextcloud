@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.16
 MAINTAINER martin@gabelmann.biz
 
 ENV DB_TYPE=mysql \
@@ -45,16 +45,16 @@ WORKDIR "$NC_WWW"
    
 RUN apk update && apk upgrade &&\
     apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
-            gettext php7 php7-apache2 php7-gd php7-memcached php7-imagick php7-bz2 php7-posix \
-            php7-json php7-pdo_mysql php7-mcrypt php7-intl php7-apcu php7-openssl php7-fileinfo \
-            php7-curl php7-zip php7-mbstring php7-dom php7-xmlreader php7-ctype php7-zlib apcupsd \
-            php7-iconv php7-xmlrpc php7-simplexml php7-xmlwriter php7-pcntl php7-ldap php7-opcache libexif php7-exif php7-gmp php7-bcmath \ 
-            nextcloud-mysql php7-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
-            nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-privacy nextcloud-recommendations \
-            nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
-            nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-nextcloud_announcements nextcloud-notifications nextcloud-default-apps \
-            nextcloud-password_policy nextcloud-pgsql nextcloud-serverinfo nextcloud-sharebymail nextcloud-survey_client nextcloud-systemtags\
-            nextcloud-support nextcloud-cloud_federation_api nextcloud-accessibility nextcloud-theming nextcloud-user_ldap coturn &&\
+            gettext php8 php8-apache2 php8-gd php8-memcached php8-imagick php8-bz2 php8-posix \
+            php8-json php8-pdo_mysql php8-mcrypt php8-intl php8-apcu php8-openssl php8-fileinfo \
+            php8-curl php8-zip php8-mbstring php8-dom php8-xmlreader php8-ctype php8-zlib apcupsd \
+            php8-iconv php8-xmlrpc php8-simplexml php8-xmlwriter php8-pcntl php8-ldap php8-opcache libexif php8-exif php8-gmp php8-bcmath \ 
+            nextcloud23-mysql php8-ldap nextcloud23-activity nextcloud23-admin_audit nextcloud23-comments nextcloud23-doc nextcloud23-encryption \
+            nextcloud23-federation nextcloud23-files_external nextcloud23-files_pdfviewer nextcloud23-files_sharing nextcloud23-privacy nextcloud23-recommendations \
+            nextcloud23-files_trashbin nextcloud23-files_versions nextcloud23-files_videoplayer nextcloud23-firstrunwizard nextcloud23-gallery \
+            nextcloud23-initscript nextcloud23-logreader nextcloud23-mysql nextcloud23-nextcloud23_announcements nextcloud23-notifications nextcloud23-default-apps \
+            nextcloud23-password_policy nextcloud23-pgsql nextcloud23-serverinfo nextcloud23-sharebymail nextcloud23-survey_client nextcloud23-systemtags\
+            nextcloud23-support nextcloud23-cloud_federation_api nextcloud23-accessibility nextcloud23-theming nextcloud23-user_ldap coturn &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
     /usr/bin/install -g mysql -m 775  -d /run/mysqld &&\
     chmod o+rwx,g+rwx,u+rwx /var/tmp/ &&\
@@ -82,15 +82,15 @@ RUN apk update && apk upgrade &&\
     sed -i '/mpm_prefork_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/mpm_event_module/s/^/#/g' /etc/apache2/httpd.conf &&\
     sed -i '/rewrite_module/s/^#//g' /etc/apache2/httpd.conf &&\
-    sed -i 's/^;open_basedir.*$/open_basedir=\/var\/lib\/nextcloud:\/usr\/share\/webapps\/nextcloud:\/etc\/nextcloud:\/var\/www\/localhost\/htdocs:\/tmp\/:\/dev\/urandom/' /etc/php7/php.ini &&\
-    echo -e 'extension=apcu.so' > /etc/php7/conf.d/apcu.ini &&\
-    echo -e 'apc.enabled=1\napc.shm_size=64M\napc.ttl=7200\napc.enable_cli=1' >> /etc/php7/conf.d/apcu.ini &&\
-    echo -e 'opcache.enable=1\nopcache.enable_cli=1\n' >> /etc/php7/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php7/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php7/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php7/conf.d/00_opcache.ini &&\
-    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=1512M/' /etc/php7/php.ini &&\
-    sed -i 's/^memory_limit.*$/memory_limit=2512M/' /etc/php7/php.ini &&\
+    sed -i 's/^;open_basedir.*$/open_basedir=\/var\/lib\/nextcloud:\/usr\/share\/webapps\/nextcloud:\/etc\/nextcloud:\/var\/www\/localhost\/htdocs:\/tmp\/:\/dev\/urandom/' /etc/php8/php.ini &&\
+    echo -e 'extension=apcu.so' > /etc/php8/conf.d/apcu.ini &&\
+    echo -e 'apc.enabled=1\napc.shm_size=64M\napc.ttl=7200\napc.enable_cli=1' >> /etc/php8/conf.d/apcu.ini &&\
+    echo -e 'opcache.enable=1\nopcache.enable_cli=1\n' >> /etc/php8/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php8/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php8/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php8/conf.d/00_opcache.ini &&\
+    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=1512M/' /etc/php8/php.ini &&\
+    sed -i 's/^memory_limit.*$/memory_limit=2512M/' /etc/php8/php.ini &&\
     ln -s /var/www/localhost/htdocs/occ /usr/local/bin/occ &&\
     chmod +x /usr/share/webapps/nextcloud/occ &&\
     rm -f /etc/nextcloud/config.php
