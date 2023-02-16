@@ -45,14 +45,14 @@ WORKDIR "$NC_WWW"
    
 RUN apk update && apk upgrade &&\
     apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
-            gettext php8 php8-apache2 php8-gd php8-memcached php8-imagick php8-bz2 php8-posix \
-            php8-json php8-pdo_mysql php8-mcrypt php8-intl php8-apcu php8-openssl php8-fileinfo \
+            gettext php8 php8-apache2 php8-gd php8-bz2 php8-posix \
+            php8-json php8-pdo_mysql php8-intl php8-apcu php8-openssl php8-fileinfo \
             php8-curl php8-zip php8-mbstring php8-dom php8-xmlreader php8-ctype php8-zlib apcupsd \
-            php8-iconv php8-xmlrpc php8-simplexml php8-xmlwriter php8-pcntl php8-ldap php8-opcache libexif php8-exif php8-gmp php8-bcmath \ 
+            php8-iconv php8-simplexml php8-xmlwriter php8-pcntl php8-ldap php8-opcache libexif php8-exif php8-gmp php8-bcmath \ 
             nextcloud23-mysql php8-ldap nextcloud23-activity nextcloud23-admin_audit nextcloud23-comments nextcloud23-doc nextcloud23-encryption \
             nextcloud23-federation nextcloud23-files_external nextcloud23-files_pdfviewer nextcloud23-files_sharing nextcloud23-privacy nextcloud23-recommendations \
             nextcloud23-files_trashbin nextcloud23-files_versions nextcloud23-files_videoplayer nextcloud23-firstrunwizard nextcloud23-gallery \
-            nextcloud23-initscript nextcloud23-logreader nextcloud23-mysql nextcloud23-nextcloud23_announcements nextcloud23-notifications nextcloud23-default-apps \
+            nextcloud23-initscript nextcloud23-logreader nextcloud23-mysql nextcloud23-notifications nextcloud23-default-apps \
             nextcloud23-password_policy nextcloud23-pgsql nextcloud23-serverinfo nextcloud23-sharebymail nextcloud23-survey_client nextcloud23-systemtags\
             nextcloud23-support nextcloud23-cloud_federation_api nextcloud23-accessibility nextcloud23-theming nextcloud23-user_ldap coturn &&\
     /usr/bin/install -g apache -m 775  -d /run/apache2 &&\
