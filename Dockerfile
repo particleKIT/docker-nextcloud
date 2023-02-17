@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine
 MAINTAINER martin@gabelmann.biz
 
 ENV DB_TYPE=mysql \
@@ -45,11 +45,11 @@ WORKDIR "$NC_WWW"
    
 RUN apk update && apk upgrade &&\
     apk add mariadb mariadb-client tzdata openssl openldap-clients ca-certificates apache2 apache2-ssl apache2-proxy \
-            gettext php8 php8-apache2 php8-gd php8-bz2 php8-posix \
-            php8-json php8-pdo_mysql php8-intl php8-apcu php8-openssl php8-fileinfo \
-            php8-curl php8-zip php8-mbstring php8-dom php8-xmlreader php8-ctype php8-zlib apcupsd \
-            php8-iconv php8-simplexml php8-xmlwriter php8-pcntl php8-ldap php8-opcache libexif php8-exif php8-gmp php8-bcmath \ 
-            nextcloud-mysql php8-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
+            gettext php81 php81-apache2 php81-gd php81-bz2 php81-posix \
+            php81-json php81-pdo_mysql php81-intl php81-apcu php81-openssl php81-fileinfo \
+            php81-curl php81-zip php81-mbstring php81-dom php81-xmlreader php81-ctype php81-zlib apcupsd \
+            php81-iconv php81-simplexml php81-xmlwriter php81-pcntl php81-ldap php81-opcache libexif php81-exif php81-gmp php81-bcmath \ 
+            nextcloud-mysql php81-ldap nextcloud-activity nextcloud-admin_audit nextcloud-comments nextcloud-doc nextcloud-encryption \
             nextcloud-federation nextcloud-files_external nextcloud-files_pdfviewer nextcloud-files_sharing nextcloud-privacy nextcloud-recommendations \
             nextcloud-files_trashbin nextcloud-files_versions nextcloud-files_videoplayer nextcloud-firstrunwizard nextcloud-gallery \
             nextcloud-initscript nextcloud-logreader nextcloud-mysql nextcloud-notifications nextcloud-default-apps \
@@ -82,15 +82,15 @@ RUN apk update && apk upgrade &&\
     sed -i '/mpm_prefork_module/s/^#//g' /etc/apache2/httpd.conf &&\
     sed -i '/mpm_event_module/s/^/#/g' /etc/apache2/httpd.conf &&\
     sed -i '/rewrite_module/s/^#//g' /etc/apache2/httpd.conf &&\
-    sed -i 's/^;open_basedir.*$/open_basedir=\/var\/lib\/nextcloud:\/usr\/share\/webapps\/nextcloud:\/etc\/nextcloud:\/var\/www\/localhost\/htdocs:\/tmp\/:\/dev\/urandom/' /etc/php8/php.ini &&\
-    echo -e 'extension=apcu.so' > /etc/php8/conf.d/apcu.ini &&\
-    echo -e 'apc.enabled=1\napc.shm_size=64M\napc.ttl=7200\napc.enable_cli=1' >> /etc/php8/conf.d/apcu.ini &&\
-    echo -e 'opcache.enable=1\nopcache.enable_cli=1\n' >> /etc/php8/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php8/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php8/conf.d/00_opcache.ini &&\
-    echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php8/conf.d/00_opcache.ini &&\
-    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=1512M/' /etc/php8/php.ini &&\
-    sed -i 's/^memory_limit.*$/memory_limit=2512M/' /etc/php8/php.ini &&\
+    sed -i 's/^;open_basedir.*$/open_basedir=\/var\/lib\/nextcloud:\/usr\/share\/webapps\/nextcloud:\/etc\/nextcloud:\/var\/www\/localhost\/htdocs:\/tmp\/:\/dev\/urandom/' /etc/php81/php.ini &&\
+    echo -e 'extension=apcu.so' > /etc/php81/conf.d/apcu.ini &&\
+    echo -e 'apc.enabled=1\napc.shm_size=64M\napc.ttl=7200\napc.enable_cli=1' >> /etc/php81/conf.d/apcu.ini &&\
+    echo -e 'opcache.enable=1\nopcache.enable_cli=1\n' >> /etc/php81/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.max_accelerated_files=10000\n' >> /etc/php81/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.memory_consumption=128\nopcache.save_comments=1\n' >> /etc/php81/conf.d/00_opcache.ini &&\
+    echo -e 'opcache.interned_strings_buffer=8\nopcache.revalidate_freq=1' >> /etc/php81/conf.d/00_opcache.ini &&\
+    sed -i 's/^upload_max_filesize.*$/upload_max_filesize=1512M/' /etc/php81/php.ini &&\
+    sed -i 's/^memory_limit.*$/memory_limit=2512M/' /etc/php81/php.ini &&\
     ln -s /var/www/localhost/htdocs/occ /usr/local/bin/occ &&\
     chmod +x /usr/share/webapps/nextcloud/occ &&\
     rm -f /etc/nextcloud/config.php
