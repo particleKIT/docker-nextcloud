@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.17
 MAINTAINER martin@gabelmann.biz
 
 ENV DB_TYPE=mysql \
