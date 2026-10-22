@@ -1,47 +1,56 @@
-#!/bin/sh
+#!/bin/bash
 
-# exit if a command fails
-set -e 
+# CANDIDATE entrypoint - port of the production nc-install to the Debian 13
+# layout. Behaviour deliberately mirrors the alpine original:
+#   - start the bundled mariadb (unless DB_EXTERNAL), initialise it if empty
+#   - copy /tpl/** into the filesystem, substituting {VAR} placeholders
+#   - fix ownership/permissions of the webroot
+#
+# Differences vs. the alpine original:
+#   - apache user/group is 'apache' on Debian too, but the webroot is
+#     /usr/src/nextcloud (symlinked from $NC_WWW)
+#   - config dir is $NC_WWW/config -> /etc/nextcloud (symlink), same trick
+#   - uses apache2ctl instead of httpd -kstart
+
+set -e
 set -o pipefail
 
-##function definitions
 start_db() {
     mysqld -u mysql --user=mysql --datadir="$DB_DATA_PATH"
 }
 
-mkdir -p $DB_DATA_PATH
-chmod u=rwx,g-rwx,o-rwx $DB_DATA_PATH
-chown -R mysql:mysql $DB_DATA_PATH
+mkdir -p "$DB_DATA_PATH"
+chmod u=rwx,g-rwx,o-rwx "$DB_DATA_PATH"
+chown -R mysql:mysql "$DB_DATA_PATH"
 
 if [ ! -f "$DB_DATA_PATH/ibdata1" ]; then
-    
+
     echo '### no local mariadb found ###'
     echo '### installing database ###'
-    mysql_install_db --user=mysql --datadir="$DB_DATA_PATH"
+    mariadb-install-db --user=mysql --datadir="$DB_DATA_PATH" --auth-root-authentication-method=normal
     echo '### starting database server ###'
     mysqld_safe --datadir="$DB_DATA_PATH" --timezone="$NC_TIME" &
     sleep 4
 
     echo '### create NextCloud Database and -user ###'
-    mysqladmin -u root password $DB_ROOT_PASS
+    mariadb-admin -u root password "$DB_ROOT_PASS"
     echo -e "DELETE FROM mysql.user WHERE User='';\n
     DROP DATABASE test;\n
     CREATE USER $DB_USER@localhost IDENTIFIED BY '$DB_PASS';\n
     CREATE DATABASE IF NOT EXISTS $DB_NAME;\n
     GRANT ALL PRIVILEGES ON $DB_NAME.* TO $DB_USER@localhost IDENTIFIED BY '$DB_PASS';\n
-    FLUSH PRIVILEGES;" | mysql -u root --password=$DB_ROOT_PASS
+    FLUSH PRIVILEGES;" | mariadb -u root --password="$DB_ROOT_PASS"
 else
-    echo '### existing postgres database found ###'
-    sed -i "/\[mysqld\]/a max_allowed_packet = $DB_MAX_ALLOWED_PACKET" /etc/my.cnf
-    sed -i "/\[mysqld\]/a key_buffer_size = 128M" /etc/my.cnf
-    sed -i "/\[mysqld\]/a transaction_isolation = READ-COMMITTED" /etc/my.cnf
-    sed -i "/\[mysqld\]/a binlog_format = ROW" /etc/my.cnf
-    echo -e "[mysql-dump]\nmax_allowed_packet = $DB_MAX_ALLOWED_PACKET\nquick\nquote-names" >> /etc/my.cnf
+    echo '### existing mariadb database found ###'
+    sed -i "/\[mariadb\]/a max_allowed_packet = $DB_MAX_ALLOWED_PACKET" /etc/mysql/mariadb.conf.d/50-server.cnf 2>/dev/null || true
+    sed -i "/\[mariadb\]/a key_buffer_size = 128M" /etc/mysql/mariadb.conf.d/50-server.cnf 2>/dev/null || true
+    sed -i "/\[mariadb\]/a transaction_isolation = READ-COMMITTED" /etc/mysql/mariadb.conf.d/50-server.cnf 2>/dev/null || true
+    sed -i "/\[mariadb\]/a binlog_format = ROW" /etc/mysql/mariadb.conf.d/50-server.cnf 2>/dev/null || true
 
     echo '### starting database server ###'
     mysqld_safe --datadir="$DB_DATA_PATH" --timezone="$NC_TIME" &
     sleep 2
-fi 
+fi
 
 if [ -e /etc/coturn/turnserver.conf ]; then
     echo '### starting turnserver ###'
@@ -50,54 +59,79 @@ fi
 
 if [ ! -e /srv/installed ]; then
     echo "### set timezone to $NC_TIME ###"
-    ln -sf /usr/share/zoneinfo/$NC_TIME /etc/localtime
- 
+    ln -sf "/usr/share/zoneinfo/$NC_TIME" /etc/localtime
+
     echo '### copying templates from /tpl ###'
     # copy /tpl/<path> to /<path>
-    # substitute {var} by the value of the environment variable $var 
-    for tpl in $(find /tpl -type f); do 
+    # substitute {var} by the value of the environment variable $var
+    for tpl in $(find /tpl -type f); do
         destination=${tpl#/tpl}
         echo "$tpl >> $destination"
         mkdir -p "${destination%/*}"
-        cp -f $tpl $destination
+        cp -f "$tpl" "$destination"
         for i in $(env |grep -E 'NC_|DB_'); do
             var="{${i%%=*}}"
             val="${i##*=}"
-            sed -i "s|$var|$val|g" $destination
+            sed -i "s|$var|$val|g" "$destination"
         done
     done
 
+    echo '### linking config dir and apps ###'
+    # NC reads its config from <serverroot>/config/config.php - keep that
+    # pointing at the template-managed /etc/nextcloud/config.php
+    mkdir -p /etc/nextcloud
+    if [ ! -L /usr/src/nextcloud/config ]; then
+        rm -rf /usr/src/nextcloud/config
+        ln -s /etc/nextcloud /usr/src/nextcloud/config
+    fi
+    # writable apps dir (appstore) lives on the persistent volume
+    if [ ! -L /usr/src/nextcloud/apps-appstore ]; then
+        rm -rf /usr/src/nextcloud/apps-appstore
+        ln -s /var/lib/nextcloud/apps /usr/src/nextcloud/apps-appstore
+    fi
+
     echo '### configuring apache ###'
     chown -R apache:apache /etc/nextcloud
-    sed -i 's/ServerAdmin.*$/ServerAdmin '"$NC_EMAIL"'/g' /etc/apache2/httpd.conf 
-    sed -i 's/^#ServerName.*$/ServerName '"$NC_DOMAIN"'/g' /etc/apache2/httpd.conf
+    if [ -f /etc/apache2/apache2.conf ]; then
+        sed -i 's/ServerAdmin.*$/ServerAdmin '"$NC_EMAIL"'/g' /etc/apache2/apache2.conf
+        sed -i 's/^#ServerName.*$/ServerName '"$NC_DOMAIN"'/g' /etc/apache2/apache2.conf
+    fi
+    # enable the vhost we just copied from /tpl. Debian keeps vhosts in
+    # sites-available (enabled via a2ensite); conf-available holds .conf
+    # snippets that are included from a vhost, not standalone vhosts.
+    if [ -f /etc/apache2/sites-available/nextcloud.conf ]; then
+        a2ensite nextcloud >/dev/null 2>&1 || true
+    fi
+    if [ -f /etc/apache2/conf-available/nextcloud.conf ]; then
+        a2enconf nextcloud >/dev/null 2>&1 || true
+    fi
+    # the debian default vhost must not shadow ours
+    a2dissite 000-default >/dev/null 2>&1 || true
 
-    echo '### fixing directory permissions ###'    
-    #from https://wiki.archlinux.org/index.php/OwnCloud
-
-    mkdir -p $NC_WWW/assets
-    find $NC_WWW/ -type f -print0 | xargs -0 chmod 0640
-    find $NC_WWW/ -type d -print0 | xargs -0 chmod 0750
-    if [ $NC_FIXDATADIR = "yes" ]; then
-        find $NC_DATADIR/ -type d -print0 | xargs -0 chmod 0750 || true
-        find $NC_DATADIR/ -type f -print0 | xargs -0 chmod 0640 || true
+    echo '### fixing directory permissions ###'
+    mkdir -p "$NC_WWW/assets"
+    find "$NC_WWW/" -type f -print0 | xargs -0 chmod 0640
+    find "$NC_WWW/" -type d -print0 | xargs -0 chmod 0750
+    if [ "$NC_FIXDATADIR" = "yes" ]; then
+        find "$NC_DATADIR/" -type d -print0 | xargs -0 chmod 0750 || true
+        find "$NC_DATADIR/" -type f -print0 | xargs -0 chmod 0640 || true
     fi
 
-    chown -R apache:apache $NC_WWW/
-    chown apache:apache $NC_DATADIR/
-    if [ -f $NC_WWW/.htaccess ]; then
-      chmod -c 0644 $NC_WWW/.htaccess
-      chown -c apache:apache $NC_WWW/.htaccess
+    chown -R apache:apache "$NC_WWW/"
+    chown apache:apache "$NC_DATADIR/"
+    if [ -f "$NC_WWW/.htaccess" ]; then
+      chmod -c 0644 "$NC_WWW/.htaccess"
+      chown -c apache:apache "$NC_WWW/.htaccess"
     fi
-    if [ -f $NC_DATADIR/.htaccess ]; then
-      chmod -c 0644 $NC_DATADIR/.htaccess
-      chown -c apache:apache $NC_DATADIR/.htaccess
+    if [ -f "$NC_DATADIR/.htaccess" ]; then
+      chmod -c 0644 "$NC_DATADIR/.htaccess"
+      chown -c apache:apache "$NC_DATADIR/.htaccess"
     fi
-    chmod +x $NC_WWW/occ
-    
+    chmod +x "$NC_WWW/occ"
+
     touch /srv/installed
 fi
 
 echo '### Gratulations! Point your browser to your new nextcloud instance. ###'
 
-exec $@
+exec "$@"

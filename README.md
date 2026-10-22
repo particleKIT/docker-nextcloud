@@ -1,75 +1,79 @@
-# yet another dockerized NextCloud
-_Based on Alpine_
-[![Run Status](https://api.shippable.com/projects/5921cc0abba6190600a365a2/badge?branch=master)](https://app.shippable.com/github/martingabelmann/docker-nextcloud)
-[![](https://images.microbadger.com/badges/image/martingabelmann/nextcloud.svg)](https://microbadger.com/images/martingabelmann/nextcloud "Get your own image badge on microbadger.com")
-[![](https://images.microbadger.com/badges/version/martingabelmann/nextcloud.svg)](https://microbadger.com/images/martingabelmann/nextcloud "Get your own version badge on microbadger.com")
+# particlekit/docker-nextcloud
 
----
+Docker image for the KIT Nextcloud instance (`nextcloud.particle.kit.edu`).
 
-#### Features
- - Full nextcloud instance
- - OneClick/Run installation
- - Enforced ssl encryption 
- - small alpine base image
- - php7 (including many modules)
- - auto configuration via environment vars
+## What changed on 2026-10-22
 
-#### Testing
-A minimal working nextcloud instance can be run with
+The image was rebuilt on **Debian 13 (trixie)** with **Nextcloud 35.0.2** and
+**PHP 8.5.12**, replacing the Alpine 3.17 / NC 25.0.13.2 build.
 
-```
-docker run --name=nctest -d -p 443:443 -p 80:80 martingabelmann/nextcloud
-```
+Why:
 
-#### Installation
-It is highly recommended to use nextcloud with SSL. The default Apache setting of this container forces the browser to use ``https://``. There are certificates build in the image for testing but in production  one should use trused ones.
+* The Alpine image shipped **PHP 8.1.22**, which is vulnerable to
+  **CVE-2026-109618 / CVE-2026-109619** (PHP2Shell). Debian's own `php8.5`
+  and the official `nextcloud:35-apache` image still ship the vulnerable
+  8.5.11 - only `packages.sury.org` has the patched 8.5.12.
+* NC 35 requires a newer PHP than 8.1 anyway (NC 26+ needs >= 8.2).
+* Alpine 3.17 is EOL.
 
-### Volumes
-The a mapping of persistent host directories and docker volumes could look like:
-  * /srv/docker/nextcloud/
-    * db -> /var/lib/mysql
-    * ssl -> /etc/ssl/apache2
-    * data -> /var/lib/nextcloud/data
-    * apps -> /var/www/localhost/htdocs/apps2
-where ``/srv/docker/nextcloud/ssl`` stores a server.{key,pem} file.
+The instance was migrated 25 -> 26 -> ... -> 35 on 2026-10-22. See
+`NEXTCLOUD-UPGRADE-PLAN.md` in the `git.particle.kit.edu` admin repo for the
+full procedure and the pitfalls (config.php version pinning, the
+`authtoken_old` index collision, the MariaDB 11 `utf8` -> `utf8mb3` rename).
 
-### Environment vars
-see the head of the dockerfile.
-
-### Template configs
-**All** files locatet at ``/tpl`` are copied to the filesystems root ``/`` relative to ``/tpl/``. 
-For instance the preexisting file ``/tpl/etc/apache2/conf.d/httpd-vhosts.conf`` is copied to ``/etc/apache2/conf.d/httpd-vhosts.conf``. All strings that follow the pattern ``{NC|DB_*}`` will be substituted by the value of the environment variable ``$NC|DB_*``.
-You can mount your own config into ``/tpl`` and use your own environment variables with ``docker -e``.
-
-#### Nextcloud cli
-
-NextCloud offers the possibility to do administrative tasks via the command line interface `occ`. Just try it
-```
-docker exec -ti --user apache nc occ help
-```
-
-
-#### Upgrades 
-### NextCloud
-The used Nextcloud instance is updated frequently due to the automated build (linked to alpine). Thus updates are performed by pulling the newest image, moving the running container and starting a new one. Since the apps arent effected they will be upgraded by the webinterface on the next visit or via the command line. 
-  
-I recommend to upgrade via `occ`:
-```
-docker exec --user apache nc occ upgrade
-```
-
-Sometimes it happens that a upgrade fails and breaks your NextCloud webinterface because a app isnt compatible (or so). Then you have to disable the app with 
-```
-docker exec --user apache nc occ app:disable APPNAME
-```
-you may ask which apps are broken. Find out by observing `/var/www/localhost/htdocs/data/nextcloud.log``. Check a specific app with
+## Build
 
 ```
-docker exec --user apache nc app:check APPNAME
-``` 
-for compatiblity. If it fails, install the newest/compatible version by copying into `/var/www/localhost/htdocs/apps2/` (e.g. pulling from github). Afterwards try to enable it
+docker build -t particlekit/nextcloud:latest .
 ```
-docker exec --user apache nc app:enable APPNAME
+
+Build arguments:
+
+| ARG          | default | notes                                            |
+|--------------|---------|--------------------------------------------------|
+| `NC_VERSION` | 35.0.2  | Nextcloud release to download                    |
+| `PHP_VERSION`| 8.5     | PHP minor; must match the NC major (see table)   |
+
+PHP minor per NC major (Nextcloud's own `lib/versioncheck.php` bounds):
+
+| NC major | PHP |
+|----------|-----|
+| 26, 27   | 8.2 |
+| 28, 29, 30 | 8.3 |
+| 31, 32   | 8.4 |
+| 33, 34, 35 | 8.5 |
+
+The weekly build (`roles/automatedbuilds`) builds with `nocache: yes` and
+`pull: yes`, so it picks up the current sury PHP patch level and the current
+NC 35.0.x release automatically. **Keep `nocache: yes`** - with the Docker
+layer cache a Debian security update never reaches the image and the weekly
+build silently re-publishes the old, vulnerable one.
+
+## PHP2Shell mitigations (upstream's two mitigations, applied as defence in depth)
+
 ```
-If everything was successful you should be able to visit the webinterface again.
-  
+memory_limit = -1
+post_max_size = 8M
+session.upload_progress.enabled = 0
+```
+
+## Layout
+
+| path                                  | purpose                                     |
+|---------------------------------------|---------------------------------------------|
+| `Dockerfile`                          | Debian 13 + NC + sury PHP + apache2        |
+| `nc-install`                          | entrypoint: starts MariaDB, copies `/tpl/**`, fixes permissions |
+| `tpl/etc/nextcloud/config.php`        | Nextcloud config template (substituted at start) |
+| `tpl/etc/nextcloud/autoconfig.php`    | autoconfig template                         |
+| `tpl/etc/apache2/sites-available/nextcloud.conf` | Apache vhost template            |
+
+## Note on `config.php`'s `version` key
+
+This deployment stores the **installed instance version in `config.php`'s
+`version` key**, not in `oc_appconfig`. `occ` compares that value against the
+code version and refuses multi-major jumps ("Updates between multiple major
+versions and downgrades are unsupported"). The template is re-copied into the
+container on **every** start, so the template has to be kept in sync with the
+image's code version - otherwise the long `occ upgrade` re-runs on every
+container start. `roles/nextcloud` does this in the task
+"keep template config.php version in sync with the container code version".
